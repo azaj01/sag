@@ -1,66 +1,28 @@
 # sag Homebrew Release Playbook
 
-Lightweight flow to ship sag via the `steipete/tap` Homebrew tap (source build).
+The `Release Binaries` workflow updates `steipete/homebrew-tap` after it uploads and verifies release assets. Do not edit the tap formula as a normal release step.
 
-## 0) Prereqs
-- macOS with Homebrew installed.
-- Clean git tree on `main`.
-- Go toolchain installed (Go version from `go.mod`).
-- Access to tap repo sibling at `../homebrew-tap`.
+## Normal flow
 
-## 1) Verify build is green
+1. Push the annotated `vX.Y.Z` tag after the release commit is on `main`.
+2. Watch `Release Binaries` through its `update-homebrew-tap` job.
+3. Confirm the dispatched `Update Formula` run succeeds in `steipete/homebrew-tap`.
+4. Inspect `Formula/sag.rb`: its versioned artifact URLs and SHA-256 values must match the GitHub release assets and checksum manifest.
+5. Sanity-check install from tap:
+
 ```sh
-pnpm format
-pnpm lint
-pnpm test
-pnpm build
-```
-
-## 2) Bump the version in code
-- Update `Version` in `cmd/root.go`.
-- Update `CHANGELOG.md` entry to match.
-
-## 3) Tag & push
-```sh
-git commit -am "release: vX.Y.Z"
-git tag vX.Y.Z
-git push origin main --tags
-```
-
-## 4) Update the Homebrew tap formula
-In `../homebrew-tap/Formula/sag.rb`:
-
-1. Set `version "X.Y.Z"`.
-2. Set `url` to the tag source tarball:
-   ```
-   url "https://github.com/steipete/sag/archive/refs/tags/vX.Y.Z.tar.gz"
-   ```
-3. Update `sha256` for that tarball:
-   ```sh
-   curl -L -o /tmp/sag.tar.gz https://github.com/steipete/sag/archive/refs/tags/vX.Y.Z.tar.gz
-   shasum -a 256 /tmp/sag.tar.gz
-   ```
-4. Ensure build step uses:
-   ```ruby
-   system "go", "build", *std_go_args(ldflags: "-s -w"), "./cmd/sag"
-   ```
-
-Commit/push in tap repo:
-```sh
-git commit -am "sag vX.Y.Z"
-git push origin main
-```
-
-## 5) Sanity-check install from tap
-```sh
-brew uninstall sag || true
-brew untap steipete/tap || true
-brew tap steipete/tap
-brew install steipete/tap/sag
+brew update
+brew reinstall steipete/tap/sag
 brew test steipete/tap/sag
 sag --version
 ```
 
-## Notes
-- Formula builds from source; no binary assets required.
-- Keep formula minimal: version, url, sha256, license, `go` build dep, `std_go_args`.
+## Recovery
+
+If the release assets exist but the tap update failed, fix the release workflow or tap workflow and rerun `Release Binaries` for the existing tag:
+
+```sh
+gh workflow run release-binaries.yml --repo steipete/sag -f tag=vX.Y.Z
+```
+
+The workflow redispatches `update-formula.yml` with the repository, tag, artifact template, and a unique request ID, then waits for the matching tap run. Verify the rerun and formula before installing. Manual formula edits are a last-resort repair and still require checksums from the exact published assets.

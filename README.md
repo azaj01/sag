@@ -16,7 +16,7 @@ Go toolchain:
 ```bash
 go install github.com/steipete/sag/cmd/sag@latest
 ```
-Requires Go 1.24+.
+Requires Go 1.25+.
 
 Debian/Ubuntu source build prerequisites:
 ```bash

@@ -36,7 +36,7 @@ sudo install -m 0755 /tmp/sag /usr/local/bin/sag
 go install github.com/steipete/sag/cmd/sag@latest
 ```
 
-Requires the Go version declared in `go.mod` (1.24+). Source builds bake the Git description into the version string.
+Requires the Go version declared in `go.mod` (1.25+). Source builds bake the Git description into the version string.
 
 ## From source
 

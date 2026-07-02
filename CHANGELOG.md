@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.2 - Unreleased
+
+### Fixed
+- Source-install documentation now requires Go 1.25+, matching `go.mod`.
+
 ## 0.4.1 - 2026-07-01
 
 ### Fixed

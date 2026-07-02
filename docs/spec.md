@@ -3,7 +3,7 @@
 CLI that mirrors macOS `say` but uses ElevenLabs or 60db for synthesis. ElevenLabs defaults to streaming directly to speakers; 60db buffers and validates WAV output before playback.
 
 ## Runtime & deps
-- Go 1.24+
+- Go 1.25+
 - Playback uses built-in Go audio (MP3/WAV + oto) and should work on macOS/Linux/Windows with a default output device.
 - Auth via exactly one configured provider: ElevenLabs (`ELEVENLABS_API_KEY`, `SAG_API_KEY`, `--api-key`) or 60db (`SIXTYDB_API_KEY`).
 
