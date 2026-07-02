@@ -7,27 +7,23 @@ summary: 'Release checklist for sag (GitHub release + Homebrew tap)'
 Follow these steps for each release. Title GitHub releases as `sag <version>`.
 
 ## Checklist
+- Start from a clean, synchronized `main` checkout and confirm the target version follows the changelog/project SemVer convention.
 - Update CLI version in `cmd/root.go` (`Version` field).
+- Update `package.json` to the same version.
 - Update `CHANGELOG.md` with a section for the new version.
 - Run the gates: `pnpm format && pnpm lint && pnpm test && pnpm build`.
-- Tag the release: `git tag -a v<version> -m "Release <version>"` after commits; push tags with `git push origin main --tags`.
-- GitHub Actions attaches binaries (macOS universal, Linux amd64, Windows amd64) to the GitHub release automatically (workflow: `Release Binaries`).
-- Update Homebrew tap formula (`../homebrew-tap/Formula/sag.rb`):
-  1. Set `version "<version>"`.
-  2. Set `url "https://github.com/steipete/sag/archive/refs/tags/v<version>.tar.gz"`.
-  3. Update `sha256` from the same GitHub tag tarball:
-     - `curl -L -o /tmp/sag-<version>.tar.gz https://github.com/steipete/sag/archive/refs/tags/v<version>.tar.gz`
-     - `shasum -a 256 /tmp/sag-<version>.tar.gz`
-  4. Verify formula checksum matches the downloaded tarball.
-  5. Ensure build step uses `system "go", "build", *std_go_args(ldflags: "-s -w"), "./cmd/sag"`.
-  6. Commit and push in tap repo: `git commit -am "sag v<version>" && git push origin main`.
+- Commit the release changes, then create an annotated tag: `git tag -a v<version> -m "Release <version>"`.
+- Push `main` and the tag. The `Release Binaries` workflow builds macOS arm64/amd64/universal, Linux arm64/amd64, and Windows amd64 archives, verifies their checksums, attaches them to the GitHub release, dispatches the Homebrew tap update, and waits for that workflow.
+- Watch the exact tag workflow through completion. Repair or rerun failures before continuing.
+- Verify the GitHub release:
+  - title is `sag <version>`
+  - body contains the complete changelog section plus links to the release commit, exact-head CI, live/behavior proof, and checksum manifest
+  - all expected archives, per-archive checksums, and the combined checksum manifest are attached
+- Verify `steipete/homebrew-tap` updated `Formula/sag.rb` to the new release URLs and matching checksums. The release workflow owns this update; use the [Homebrew playbook](releasing-homebrew.md) for recovery.
 - Verify Homebrew install from tap:
   - `brew update && brew reinstall steipete/tap/sag`
   - `brew test steipete/tap/sag`
   - `sag --version`
-- Create GitHub release for `v<version>`:
-  - Title: `sag <version>`
-  - Body: bullets from `CHANGELOG.md` for that version
-  - Assets: optional source tarball `/tmp/sag-<version>.tar.gz` (mention SHA256 in body)
 - Smoke-test CLI locally: `sag --help`, `sag voices --limit 3`, `sag -v Roger "hello"`.
+- Add the next patch `Unreleased` section to `CHANGELOG.md`, commit, and push the closeout.
 - Announce: optional note with `brew update && brew upgrade steipete/tap/sag`.
