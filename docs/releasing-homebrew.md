@@ -17,6 +17,8 @@ brew test steipete/tap/sag
 sag --version
 ```
 
+The dispatch must pass the tagged source archive as `linux_url`: Linux ARM installs build from source, and the tap updater refreshes that checksum only when this input is explicit. Verify it as well as the binary archive checksums.
+
 ## Recovery
 
 If the release assets exist but the tap update failed, fix the release workflow or tap workflow and rerun `Release Binaries` for the existing tag:

@@ -229,6 +229,7 @@ jobs:
             -f tag="${{ steps.release.outputs.tag }}" \
             -f repository=steipete/sag \
             -f artifact_template='sag_{version}_{target}.tar.gz' \
+            -f linux_url="https://github.com/steipete/sag/archive/refs/tags/${{ steps.release.outputs.tag }}.tar.gz" \
             -f request_id="${{ steps.release.outputs.request_id }}"
 
       - name: Wait for tap update

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.3 - Unreleased
+
+### Fixed
+- Homebrew release updates now refresh the Linux ARM source archive checksum together with the binary archive checksums.
+
 ## 0.4.2 - 2026-09-13
 
 ### Fixed
